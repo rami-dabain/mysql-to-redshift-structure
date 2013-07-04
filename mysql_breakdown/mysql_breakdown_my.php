@@ -8,12 +8,15 @@ require_once dirname(__FILE__).'/mysql_breakdown_table.php';
  * skype : ronan_dejhero
  */
 class mysql_breakdown_my {
+    private $tables = array();
+    
     private $my_connected = false;
     
-    private $mydb = '';             // store db handler
+    private $mydb = '';                         // store db handler
     ////
-    private $process_local_tables = array();        //Which table to process , empty for all
-    private $db_options = array();        //Which table to process , empty for all
+    private $process_local_tables = array();    //Which table to process , empty for all
+    private $db_options = array();              //Which table to process , empty for all
+    //
     //put your code here
     public function __construct($host = 'localhost', $port = 3306, 
                                 $user = '', $pass = '', $db = '') {
@@ -48,9 +51,13 @@ class mysql_breakdown_my {
         }
         
         // generate tables
+        empty($this->tables);
         foreach ($this->process_local_tables as $table_name){
             $table = $this->parseTable($table_name);
+            $this->tables[] = $table;
         }
+        
+        return $this->tables;
     }
     
     private function connect_db(){  // use only on public functions
@@ -85,6 +92,7 @@ class mysql_breakdown_my {
         while ($fds = mysql_fetch_object($query)){
             $fields[] = $fds;
         }
-            $tblObject = new mysql_breakdown_table($table_name, $fields);
+        $tblObject = new mysql_breakdown_table($table_name, $fields);
+        return $tblObject;
     }
 }
