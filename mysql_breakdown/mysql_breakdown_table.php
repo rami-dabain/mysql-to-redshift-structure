@@ -43,11 +43,14 @@ class mysql_breakdown_table {
     public function buildQuery($encloseColumnNames = ''){
         $query = 'CREATE TABLE '.$this->table_name.' (';
         foreach ($this->fields as $field){
-            $query.= $encloseColumnNames.$field->field.$encloseColumnNames.' ';
-            $query.= $field->type.' ';
-            if ($field->type_length !=''){
-                 $query.='('.$field->type_length.')';
-            }
+            $query.= "  ".$encloseColumnNames.$field->field.$encloseColumnNames.' ';
+            $query.= $field->type;
+            /*data type length*/
+            if ($field->type_length !='') $query.='('.$field->type_length.')';
+            /*data encoding*/
+            if(!empty($field->encoding)) $query.= " ENCODE {$field->encoding} ";
+            /*is not null*/
+            if (strtolower($field->null) == 'no') $query.= " NOT NULL ";
             $query.= ',';
         }
         $query = substr($query,0,-1).')';
@@ -59,15 +62,19 @@ class mysql_breakdown_table {
         $mapType = 'map_'.$from.'_'.$to;
         $map = new $mapType();
         $newFields = array();
-
         foreach ($this->fields as $key=>$fieldData) {
+          /*Data type conversion*/
           $newFields[$key] = $fieldData;
-          $oldFDT = strtoupper($fieldData->type);
-          $newFDT = $map->type[$oldFDT];
-          $newFields[$key]->type = $newFDT;
-          if (in_array($newFDT, $map->remove_length)){
-              $newFields[$key]->type_length = '';
-          }
+          $newFDT = $oldFDT = strtoupper($fieldData->type);
+          if(!empty($map->type[$oldFDT])) $newFDT = $map->type[$oldFDT];
+          $newFields[$key]->type = strtolower($newFDT);
+          /*Remove data length for specific data types*/
+          if (in_array($newFDT, $map->remove_length) || $oldFDT == 'ENUM') $newFields[$key]->type_length = '';
+          /*Remove default values for specific data types*/
+          if(in_array($newFDT,$map->remove_default_map)) $newFields[$key]->default = '';
+          /*Add correspoding data encoding*/
+          $newFields[$key]->encoding = '';
+          if(isset($map->encode_map[$oldFDT])) $newFields[$key]->encoding = $map->encode_map[$oldFDT];
         }
         $this->fields = $newFields;
     }
