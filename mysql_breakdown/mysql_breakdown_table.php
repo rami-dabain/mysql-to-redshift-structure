@@ -43,11 +43,14 @@ class mysql_breakdown_table {
     public function buildQuery($encloseColumnNames = ''){
         $query = 'CREATE TABLE '.$this->table_name.' (';
         foreach ($this->fields as $field){
-            $query.= $encloseColumnNames.$field->field.$encloseColumnNames.' ';
-            $query.= $field->type.' ';
-            if ($field->type_length !=''){
-                 $query.='('.$field->type_length.')';
-            }
+            $query.= "  ".$encloseColumnNames.$field->field.$encloseColumnNames.' ';
+            $query.= $field->type;
+            /*data type length*/
+            if ($field->type_length !='') $query.='('.$field->type_length.')';
+            /*data encoding*/
+            if(!empty($field->encoding)) $query.= " ENCODE {$field->encoding} ";
+            /*is not null*/
+            if (strtolower($field->null) == 'no') $query.= " NOT NULL ";
             $query.= ',';
         }
         $query = substr($query,0,-1).')';
