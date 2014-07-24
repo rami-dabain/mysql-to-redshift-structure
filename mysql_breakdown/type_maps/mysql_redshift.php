@@ -1,42 +1,43 @@
 <?php
 class map_mysql_redshift{
     public $type = array(
-        'TINYINT'=>'INT2',
-        'SMALLINT'=>'INT2',
+        'TINYINT'=>'SMALLINT',
         'MEDIUMINT'=>'INT',
-        'BIGINT'=>'INT8',
-        'BIT'=>'BIT',
-        'TINYINT UNSIGNED'=>'INT2',
-        'SMALLINT UNSIGNED'=>'INT',
-        'MEDIUMINT UNSIGNED'=>'INT',
-        'INT'=>'INT',
+        'TINYINT UNSIGNED'=>'SMALLINT',
+        'SMALLINT UNSIGNED'=>'INTEGER',
+        'MEDIUMINT UNSIGNED'=>'INTEGER',
         'INT UNSIGNED'=>'BIGINT',
         'BIGINT UNSIGNED'=>'NUMERIC(20)',
         'DOUBLE'=>'FLOAT8',
-        'FLOAT'=>'FLOAT4',
+        'FLOAT'=>'DECIMAL',
         'DECIMAL'=>'NUMERIC',
-        'NUMERIC'=>'NUMERIC',
         'BOOLEAN'=>'BOOL',
-        'DATE'=>'DATE',
-        'TIME'=>'TIME',
         'DATETIME'=>'TIMESTAMP',
-        'TIMESTAMP'=>'TIMESTAMP',
-        'TIMESTAMP DEFAULT'=>'TIMESTAMP DEFAULT',
+        'TIMESTAMP DEFAULT'=>'TIMESTAMP',
         'NOW'=>'NOW()', // in MYSQL it is () the the breakdown will takeaway the ()
         'LONGTEXT'=>'TEXT',
         'MEDIUMTEXT'=>'TEXT',
         'BLOB'=>'BYTEA',
-        'VARCHAR'=>'CHARACTER VARYING',
-        'CHAR'=>'CHARACTER',
-        'ENUM'=>'TEXT',
-        'TEXT'=>'TEXT',
+        'ENUM'=>'VARCHAR(100)',
+        'TEXT'=>'VARCHAR(65535)',
         'SET'=>'TEXT',
     );
-    
-    public $remove_length = array(
-        'INT2',
-        'INT',
-        'INT8',
-        'TEXT',
+
+    public $encode_map = array(
+	'VARCHAR' => 'TEXT255',
+	'ENUM' => 'TEXT255',
+	'BIGINT' => 'MOSTLY16',
+        'TINYINT'=> 'MOSTLY8',
+	'INT' => 'MOSTLY16',
+	'SMALLINT' => 'MOSTLY8',
+        'DATE'=>'DELTA32K',
+        'TIME'=>'DELTA32K',
+        'DATETIME'=>'DELTA32K',
+        'TIMESTAMP'=>'DELTA32K',
+	'CHAR' => 'BYTEDICT',
+	'TEXT' => 'TEXT32K'
     );
+    public $remove_length = array('BIGINT','SMALLINT','INTEGER','INT');
+    public $remove_default_map = array('TIMESTAMP','DATE','TIME');
+
 }
